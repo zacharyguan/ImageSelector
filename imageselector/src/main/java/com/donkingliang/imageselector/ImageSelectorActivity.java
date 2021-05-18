@@ -2,6 +2,7 @@ package com.donkingliang.imageselector;
 
 import android.Manifest;
 import android.animation.Animator;
+import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
@@ -33,7 +34,11 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.donkingliang.imageselector.adapter.FolderAdapter;
@@ -59,6 +64,7 @@ public class ImageSelectorActivity extends AppCompatActivity {
 
     private TextView tvTime;
     private TextView tvFolderName;
+    private ImageView ivFolderIndicator;
     private TextView tvConfirm;
     private TextView tvPreview;
     private FrameLayout btnConfirm;
@@ -188,6 +194,7 @@ public class ImageSelectorActivity extends AppCompatActivity {
         btnConfirm = findViewById(R.id.btn_confirm);
         btnPreview = findViewById(R.id.btn_preview);
         tvFolderName = findViewById(R.id.tv_folder_name);
+        ivFolderIndicator = findViewById(R.id.iv_folder_indicator);
         tvTime = findViewById(R.id.tv_time);
         masking = findViewById(R.id.masking);
     }
@@ -258,9 +265,9 @@ public class ImageSelectorActivity extends AppCompatActivity {
         // 判断屏幕方向
         Configuration configuration = getResources().getConfiguration();
         if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            mLayoutManager = new GridLayoutManager(this, 3);
+            mLayoutManager = new GridLayoutManager(this, 4);
         } else {
-            mLayoutManager = new GridLayoutManager(this, 5);
+            mLayoutManager = new GridLayoutManager(this, 7);
         }
 
         rvImage.setLayoutManager(mLayoutManager);
@@ -315,7 +322,7 @@ public class ImageSelectorActivity extends AppCompatActivity {
         rvFolder.post(new Runnable() {
             @Override
             public void run() {
-                rvFolder.setTranslationY(rvFolder.getHeight());
+                rvFolder.setTranslationY(-rvFolder.getHeight());
                 rvFolder.setVisibility(View.GONE);
                 rvFolder.setBackgroundColor(Color.WHITE);
             }
@@ -363,7 +370,7 @@ public class ImageSelectorActivity extends AppCompatActivity {
         if (!isOpenFolder) {
             masking.setVisibility(View.VISIBLE);
             ObjectAnimator animator = ObjectAnimator.ofFloat(rvFolder, "translationY",
-                    rvFolder.getHeight(), 0).setDuration(300);
+                    -rvFolder.getHeight(), 0).setDuration(300);
             animator.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationStart(Animator animation) {
@@ -371,6 +378,25 @@ public class ImageSelectorActivity extends AppCompatActivity {
                     rvFolder.setVisibility(View.VISIBLE);
                 }
             });
+            Animation indicatorAnim = AnimationUtils.loadAnimation(this,  R.anim.folder_indicator);
+            indicatorAnim.setInterpolator(new LinearInterpolator());
+            indicatorAnim.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    ivFolderIndicator.setImageResource(R.drawable.icon_arrow_up);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+            ivFolderIndicator.startAnimation(indicatorAnim);
             animator.start();
             isOpenFolder = true;
         }
@@ -383,7 +409,7 @@ public class ImageSelectorActivity extends AppCompatActivity {
         if (isOpenFolder) {
             masking.setVisibility(View.GONE);
             ObjectAnimator animator = ObjectAnimator.ofFloat(rvFolder, "translationY",
-                    0, rvFolder.getHeight()).setDuration(300);
+                    0, -rvFolder.getHeight()).setDuration(300);
             animator.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
@@ -391,6 +417,25 @@ public class ImageSelectorActivity extends AppCompatActivity {
                     rvFolder.setVisibility(View.GONE);
                 }
             });
+            Animation indicatorAnim = AnimationUtils.loadAnimation(this,  R.anim.folder_indicator);
+            indicatorAnim.setInterpolator(new LinearInterpolator());
+            indicatorAnim.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    ivFolderIndicator.setImageResource(R.drawable.icon_arrow_down);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+            ivFolderIndicator.startAnimation(indicatorAnim);
             animator.start();
             isOpenFolder = false;
         }
@@ -427,7 +472,7 @@ public class ImageSelectorActivity extends AppCompatActivity {
             tvTime.setText(time);
             showTime();
             mHideHandler.removeCallbacks(mHide);
-            mHideHandler.postDelayed(mHide, 1500);
+            mHideHandler.postDelayed(mHide, 350);
         }
     }
 
@@ -533,11 +578,11 @@ public class ImageSelectorActivity extends AppCompatActivity {
         if (mLayoutManager != null && mAdapter != null) {
             //切换为竖屏
             if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                mLayoutManager.setSpanCount(3);
+                mLayoutManager.setSpanCount(4);
             }
             //切换为横屏
             else if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                mLayoutManager.setSpanCount(5);
+                mLayoutManager.setSpanCount(7);
             }
             mAdapter.notifyDataSetChanged();
         }

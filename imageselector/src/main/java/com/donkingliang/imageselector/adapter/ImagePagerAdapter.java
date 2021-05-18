@@ -12,9 +12,8 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.donkingliang.imageselector.entry.Image;
 import com.donkingliang.imageselector.utils.ImageUtil;
 import com.donkingliang.imageselector.utils.VersionUtils;
@@ -76,14 +75,13 @@ public class ImagePagerAdapter extends PagerAdapter {
         if (image.isGif()) {
             currentView.setScaleType(ImageView.ScaleType.FIT_CENTER);
             Glide.with(mContext).load(isAndroidQ ? image.getUri() : image.getPath()).override(720,1080)
-                    .apply(new RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE))
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(currentView);
         } else {
-            Glide.with(mContext).asBitmap()
-                    .apply(new RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE))
-                    .load(isAndroidQ ? image.getUri() : image.getPath()).into(new SimpleTarget<Bitmap>(720,1080) {
+            Glide.with(mContext)
+                    .load(isAndroidQ ? image.getUri() : image.getPath()).asBitmap().diskCacheStrategy(DiskCacheStrategy.NONE).override(720,1080).into(new SimpleTarget<Bitmap>() {
                 @Override
-                public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
                     int bw = resource.getWidth();
                     int bh = resource.getHeight();
                     if (bw > 4096 || bh > 4096) {

@@ -213,10 +213,12 @@ public class ImageUtil {
         try {
             ParcelFileDescriptor parcelFileDescriptor =
                     context.getContentResolver().openFileDescriptor(uri, "r");
-            FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-            Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
-            parcelFileDescriptor.close();
-            return image;
+            if (parcelFileDescriptor != null) {
+                FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+                Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
+                parcelFileDescriptor.close();
+                return image;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -1,19 +1,17 @@
 package com.donkingliang.imageselector.adapter;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestOptions;
 import com.donkingliang.imageselector.R;
 import com.donkingliang.imageselector.entry.Image;
 import com.donkingliang.imageselector.utils.VersionUtils;
-
 import java.util.ArrayList;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
@@ -50,8 +48,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         this.isViewImage = isViewImage;
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_IMAGE) {
             View view = mInflater.inflate(R.layout.adapter_images_item, parent, false);
             return new ViewHolder(view);
@@ -62,11 +61,11 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE_IMAGE) {
             final Image image = getImage(position);
             Glide.with(mContext).load(isAndroidQ ? image.getUri() : image.getPath())
-                    .apply(new RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE))
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(holder.ivImage);
 
             setItemSelect(holder, mSelectImages.contains(image));
@@ -200,7 +199,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
             holder.ivSelectIcon.setImageResource(R.drawable.icon_image_select);
             holder.ivMasking.setAlpha(0.5f);
         } else {
-            holder.ivSelectIcon.setImageResource(R.drawable.icon_image_un_select);
+            holder.ivSelectIcon.setImageResource(R.drawable.circle_transparent_border_white);
             holder.ivMasking.setAlpha(0.2f);
         }
     }

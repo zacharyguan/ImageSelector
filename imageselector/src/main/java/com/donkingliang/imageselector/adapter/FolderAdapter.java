@@ -7,10 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestOptions;
 import com.donkingliang.imageselector.R;
 import com.donkingliang.imageselector.entry.Folder;
 import com.donkingliang.imageselector.entry.Image;
@@ -47,8 +45,9 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.ViewHolder
         holder.ivSelect.setVisibility(mSelectItem == position ? View.VISIBLE : View.GONE);
         if (images != null && !images.isEmpty()) {
             holder.tvFolderSize.setText(mContext.getString(R.string.selector_image_num,images.size()));
-            Glide.with(mContext).load(isAndroidQ ? images.get(0).getUri() : images.get(0).getPath())
-                    .apply(new RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE))
+            Glide.with(mContext)
+                    .load(isAndroidQ ? images.get(0).getUri() : images.get(0).getPath())
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(holder.ivImage);
         } else {
             holder.tvFolderSize.setText(mContext.getString(R.string.selector_image_num,0));
