@@ -24,30 +24,23 @@
             android:foreground="@drawable/btn_back_selector">
 
             <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="14dp"
+                android:layout_marginEnd="14dp"
                 android:scaleType="centerInside"
-                android:src="@drawable/icon_back" />
+                android:src="@drawable/icon_back_white"
+                android:layout_gravity="center"/>
 
         </FrameLayout>
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="12dp"
-            android:layout_marginTop="12dp"
-            android:layout_toRightOf="@+id/btn_back"
-            android:background="@android:color/black" />
 
         <TextView
             android:id="@+id/tv_indicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
             android:layout_toRightOf="@+id/btn_back"
+            android:layout_toEndOf="@+id/btn_back"
             android:textColor="@android:color/white"
             android:textSize="18sp" />
 
@@ -56,8 +49,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:layout_marginRight="16dp"
+            android:layout_marginRight="14dp"
+            android:layout_marginEnd="14dp"
             android:foreground="@drawable/btn_foreground_selector">
 
             <TextView
@@ -68,12 +63,12 @@
                 android:gravity="center"
                 android:minWidth="50dp"
                 android:paddingBottom="5dp"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
                 android:paddingTop="5dp"
                 android:text="@string/selector_send"
                 android:textColor="@android:color/white"
-                android:textSize="14sp" />
+                android:textSize="15sp" />
 
         </FrameLayout>
 
