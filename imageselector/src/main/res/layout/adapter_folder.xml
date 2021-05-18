@@ -7,7 +7,7 @@
         android:id="@+id/fl_folder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/folder_bg"
+        android:background="@drawable/is_folder_bg"
         android:layout_margin="10dp"
         android:paddingRight="3dp"
         android:paddingBottom="3dp">
@@ -28,7 +28,7 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_marginRight="15dp"
-        android:src="@drawable/icon_image_select" />
+        android:src="@drawable/is_icon_image_select" />
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -3,7 +3,7 @@ Android图片选择器，仿微信的图片选择器的样式和效果。支持�
 
 先上效果图：
 
-![相册](https://github.com/donkingliang/ImageSelector/blob/master/%E6%95%88%E6%9E%9C%E5%9B%BE/%E7%9B%B8%E5%86%8C.jpg)  ![文件夹](https://github.com/donkingliang/ImageSelector/blob/master/%E6%95%88%E6%9E%9C%E5%9B%BE/%E6%96%87%E4%BB%B6%E5%A4%B9.jpg)  ![预览](https://github.com/donkingliang/ImageSelector/blob/master/%E6%95%88%E6%9E%9C%E5%9B%BE/%E9%A2%84%E8%A7%88.jpg)
+![相册](https://github.com/zachary/ImageSelector/blob/master/%E6%95%88%E6%9E%9C%E5%9B%BE/%E7%9B%B8%E5%86%8C.jpg)  ![文件夹](https://github.com/zachary/ImageSelector/blob/master/%E6%95%88%E6%9E%9C%E5%9B%BE/%E6%96%87%E4%BB%B6%E5%A4%B9.jpg)  ![预览](https://github.com/zachary/ImageSelector/blob/master/%E6%95%88%E6%9E%9C%E5%9B%BE/%E9%A2%84%E8%A7%88.jpg)
 
 **1、引入依赖**
 
@@ -20,7 +20,7 @@ Android图片选择器，仿微信的图片选择器的样式和效果。支持�
 在Module的build.gradle在添加以下代码
 
 ```
-	compile 'com.github.donkingliang:ImageSelector:1.4.0'
+	compile 'com.github.zachary:ImageSelector:1.4.0'
 ```
 
 **2、配置AndroidManifest.xml**
@@ -29,7 +29,7 @@ Android图片选择器，仿微信的图片选择器的样式和效果。支持�
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
 //图片选择Activity
-<activity android:name="com.donkingliang.imageselector.ImageSelectorActivity"
+<activity android:name="zachary.imageselector.ImageSelectorActivity"
 	//去掉Activity的ActionBar。
 	//使用者可以根据自己的项目去配置，不一定要这样写，只要不Activity的ActionBar去掉就可以了。
     android:theme="@style/Theme.AppCompat.Light.NoActionBar"
@@ -38,13 +38,13 @@ Android图片选择器，仿微信的图片选择器的样式和效果。支持�
     android:configChanges="orientation|keyboardHidden|screenSize"/>
     
 //图片预览Activity
-<activity android:name="com.donkingliang.imageselector.PreviewActivity"
+<activity android:name="zachary.imageselector.PreviewActivity"
     android:theme="@style/Theme.AppCompat.Light.NoActionBar"
     android:configChanges="orientation|keyboardHidden|screenSize"/>
 
 //图片剪切Activity
 <activity
-    android:name="com.donkingliang.imageselector.ClipImageActivity"
+    android:name="zachary.imageselector.ClipImageActivity"
     android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 ```
 **3、调起图片选择器**

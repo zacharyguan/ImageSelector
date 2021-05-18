@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingStart="23dp"
+    android:paddingEnd="23dp"
+    android:paddingTop="17dp"
+    android:paddingBottom="17dp"
+    android:background="@drawable/is_rect_transparent_white_corner_21"
+    android:gravity="center"
+    android:textColor="@android:color/black"
+    android:textSize="13sp"
+    android:text="你最多只能选择9张图片"/>

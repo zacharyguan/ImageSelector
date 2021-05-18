@@ -3,7 +3,7 @@ Android图片选择器，仿微信的图片选择器的样式和效果。支持�
 
 先上效果图：
 
-![相册](https://github.com/donkingliang/ImageSelector/blob/master/%E6%95%88%E6%9E%9C%E5%9B%BE/%E7%9B%B8%E5%86%8C.jpg)  ![文件夹](https://github.com/donkingliang/ImageSelector/blob/master/%E6%95%88%E6%9E%9C%E5%9B%BE/%E6%96%87%E4%BB%B6%E5%A4%B9.jpg)  ![预览](https://github.com/donkingliang/ImageSelector/blob/master/%E6%95%88%E6%9E%9C%E5%9B%BE/%E9%A2%84%E8%A7%88.jpg)
+![相册](https://github.com/zachary/ImageSelector/blob/master/%E6%95%88%E6%9E%9C%E5%9B%BE/%E7%9B%B8%E5%86%8C.jpg)  ![文件夹](https://github.com/zachary/ImageSelector/blob/master/%E6%95%88%E6%9E%9C%E5%9B%BE/%E6%96%87%E4%BB%B6%E5%A4%B9.jpg)  ![预览](https://github.com/zachary/ImageSelector/blob/master/%E6%95%88%E6%9E%9C%E5%9B%BE/%E9%A2%84%E8%A7%88.jpg)
 
 **1、引入依赖**
 
@@ -20,9 +20,9 @@ Android图片选择器，仿微信的图片选择器的样式和效果。支持�
 在Module的build.gradle在添加以下代码
 
 ```
-	implementation 'com.github.donkingliang:ImageSelector:1.7.0'
+	implementation 'com.github.zachary:ImageSelector:1.7.0'
 ```
-ImageSelector从1.5.0版本开始使用了Glide 4.x的版本，由于Glide 3.x版本和4.x版本在使用上有所差异，如果你的项目使用了Glide 3.x版本，而又不想升级到4.x,那么你也可以使用ImageSelector:1.4.0版本，它和新的版本在使用和功能上都会有所差异。[ImageSelector 1.4.0](https://github.com/donkingliang/ImageSelector/blob/master/README1.4.0.md)
+ImageSelector从1.5.0版本开始使用了Glide 4.x的版本，由于Glide 3.x版本和4.x版本在使用上有所差异，如果你的项目使用了Glide 3.x版本，而又不想升级到4.x,那么你也可以使用ImageSelector:1.4.0版本，它和新的版本在使用和功能上都会有所差异。[ImageSelector 1.4.0](https://github.com/zachary/ImageSelector/blob/master/README1.4.0.md)
 
 **2、配置AndroidManifest.xml**
 
@@ -35,7 +35,7 @@ ImageSelector从1.5.0版本开始使用了Glide 4.x的版本，由于Glide 3.x�
 <uses-permission android:name="android.permission.CAMERA" />
 
 //图片选择Activity
-<activity android:name="com.donkingliang.imageselector.ImageSelectorActivity"
+<activity android:name="zachary.imageselector.ImageSelectorActivity"
 	//去掉Activity的ActionBar。
 	//使用者可以根据自己的项目去配置，不一定要这样写，只要不Activity的ActionBar去掉就可以了。
     android:theme="@style/Theme.AppCompat.Light.NoActionBar"
@@ -44,13 +44,13 @@ ImageSelector从1.5.0版本开始使用了Glide 4.x的版本，由于Glide 3.x�
     android:configChanges="orientation|keyboardHidden|screenSize"/>
     
 //图片预览Activity
-<activity android:name="com.donkingliang.imageselector.PreviewActivity"
+<activity android:name="zachary.imageselector.PreviewActivity"
     android:theme="@style/Theme.AppCompat.Light.NoActionBar"
     android:configChanges="orientation|keyboardHidden|screenSize"/>
 
 //图片剪切Activity
 <activity
-    android:name="com.donkingliang.imageselector.ClipImageActivity"
+    android:name="zachary.imageselector.ClipImageActivity"
     android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
 <!-- Android 7.0 文件共享配置，1.7.0之前必须配置，1.7.0后不需要 -->
