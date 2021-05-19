@@ -39,6 +39,9 @@ public class ImageSelector {
     //初始位置
     public static final String POSITION = "position";
 
+    //是否使用原图
+    public static final String IS_ORIGINAL_DRAWING = "is_original_drawing";
+
     public static final String IS_CONFIRM = "is_confirm";
 
     public static final int RESULT_CODE = 0x00000012;

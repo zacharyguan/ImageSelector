@@ -20,6 +20,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -42,6 +44,8 @@ public class PreviewActivity extends AppCompatActivity {
     private TextView tvSelect;
     private RelativeLayout rlTopBar;
     private RelativeLayout rlBottomBar;
+    private LinearLayout btnOriginalDrawing;
+    private ImageView ivOriginalDrawing;
 
     //tempImages和tempSelectImages用于图片列表数据的页面传输。
     //之所以不要Intent传输这两个图片列表，因为要保证两位页面操作的是同一个列表数据，同时可以避免数据量大时，
@@ -54,6 +58,7 @@ public class PreviewActivity extends AppCompatActivity {
     private boolean isShowBar = true;
     private boolean isConfirm = false;
     private boolean isSingle;
+    boolean isOriginalDrawing;
     private int mMaxCount;
 
     private BitmapDrawable mSelectDrawable;
@@ -61,13 +66,14 @@ public class PreviewActivity extends AppCompatActivity {
 
     public static void openActivity(Activity activity, ArrayList<Image> images,
                                     ArrayList<Image> selectImages, boolean isSingle,
-                                    int maxSelectCount, int position) {
+                                    int maxSelectCount, int position, boolean isOriginalDrawing) {
         tempImages = images;
         tempSelectImages = selectImages;
         Intent intent = new Intent(activity, PreviewActivity.class);
         intent.putExtra(ImageSelector.MAX_SELECT_COUNT, maxSelectCount);
         intent.putExtra(ImageSelector.IS_SINGLE, isSingle);
         intent.putExtra(ImageSelector.POSITION, position);
+        intent.putExtra(ImageSelector.IS_ORIGINAL_DRAWING, isOriginalDrawing);
         activity.startActivityForResult(intent, ImageSelector.RESULT_CODE);
     }
 
@@ -93,6 +99,7 @@ public class PreviewActivity extends AppCompatActivity {
         Intent intent = getIntent();
         mMaxCount = intent.getIntExtra(ImageSelector.MAX_SELECT_COUNT, 0);
         isSingle = intent.getBooleanExtra(ImageSelector.IS_SINGLE, false);
+        isOriginalDrawing = intent.getBooleanExtra(ImageSelector.IS_ORIGINAL_DRAWING, false);
 
         Resources resources = getResources();
         Bitmap selectBitmap = BitmapFactory.decodeResource(resources, R.drawable.is_icon_image_select);
@@ -111,6 +118,7 @@ public class PreviewActivity extends AppCompatActivity {
         tvIndicator.setText(1 + "/" + mImages.size());
         changeSelect(mImages.get(0));
         vpImage.setCurrentItem(intent.getIntExtra(ImageSelector.POSITION, 0));
+        ivOriginalDrawing.setSelected(isOriginalDrawing);
     }
 
     private void initView() {
@@ -121,6 +129,8 @@ public class PreviewActivity extends AppCompatActivity {
         tvSelect = findViewById(R.id.tv_select);
         rlTopBar = findViewById(R.id.rl_top_bar);
         rlBottomBar = findViewById(R.id.rl_bottom_bar);
+        btnOriginalDrawing = findViewById(R.id.btn_original_drawing);
+        ivOriginalDrawing = findViewById(R.id.iv_original_drawing);
 
         RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) rlTopBar.getLayoutParams();
         lp.topMargin = getStatusBarHeight(this);
@@ -145,6 +155,13 @@ public class PreviewActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 clickSelect();
+            }
+        });
+        btnOriginalDrawing.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isOriginalDrawing = !isOriginalDrawing;
+                ivOriginalDrawing.setSelected(isOriginalDrawing);
             }
         });
     }
@@ -326,6 +343,7 @@ public class PreviewActivity extends AppCompatActivity {
         //Activity关闭时，通过Intent把用户的操作(确定/返回)传给ImageSelectActivity。
         Intent intent = new Intent();
         intent.putExtra(ImageSelector.IS_CONFIRM, isConfirm);
+        intent.putExtra(ImageSelector.IS_ORIGINAL_DRAWING, isOriginalDrawing);
         setResult(ImageSelector.RESULT_CODE, intent);
         super.finish();
     }

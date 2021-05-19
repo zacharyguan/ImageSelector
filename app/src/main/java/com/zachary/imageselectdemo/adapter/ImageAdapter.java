@@ -6,13 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
 import com.bumptech.glide.Glide;
 import com.zachary.imageselectdemo.R;
 import com.zachary.imageselector.utils.ImageUtil;
 import com.zachary.imageselector.utils.UriUtils;
 import com.zachary.imageselector.utils.VersionUtils;
-
 import java.util.ArrayList;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
@@ -47,7 +45,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         } else {
             Glide.with(mContext).load(image).into(holder.ivImage);
         }
-
     }
 
     @Override

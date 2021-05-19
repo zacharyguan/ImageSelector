@@ -189,6 +189,98 @@ public class ImageUtil {
     }
 
     /**
+     * 得到指定宽度的压缩图片，小于此宽度的不做处理。考虑到适应长图，高度不作限定。
+     * @param context
+     * @param pathName
+     * @param reqWidth
+     * @return
+     */
+    @SuppressLint("NewApi")
+    public static Bitmap decodeSampledBitmapByWidthFromFile(Context context, String pathName, int reqWidth) {
+
+        int degree = 0;
+
+        Uri uri = UriUtils.getImageContentUri(context, pathName);
+        ParcelFileDescriptor parcelFileDescriptor = null;
+        FileDescriptor fileDescriptor = null;
+        try {
+
+            parcelFileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
+            fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+
+            ExifInterface exifInterface = null;
+            if (VersionUtils.isAndroidQ()) {
+                exifInterface = new ExifInterface(fileDescriptor);
+            } else {
+                exifInterface = new ExifInterface(pathName);
+            }
+
+            int result = exifInterface.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+            switch (result) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    degree = 90;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    degree = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    degree = 270;
+                    break;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        try {
+
+            // 第一次解析将inJustDecodeBounds设置为true，来获取图片大小
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            if (VersionUtils.isAndroidQ()) {
+                BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
+            } else {
+                BitmapFactory.decodeFile(pathName, options);
+            }
+
+            //宽度大于reqWidth则计算压缩至等于reqWidth的inSampleSize值
+            if (options.outWidth > reqWidth) {
+                options.inSampleSize = Math.round((float) options.outWidth / (float) reqWidth);
+            } else {
+                options.inSampleSize = 1;
+            }
+
+            // 使用获取到的inSampleSize值再次解析图片
+            options.inJustDecodeBounds = false;
+//            options.inPreferredConfig = Bitmap.Config.RGB_565;
+
+            Bitmap bitmap = null;
+            if (VersionUtils.isAndroidQ()) {
+                bitmap = getBitmapFromUri(context, uri, options);
+            } else {
+                bitmap = BitmapFactory.decodeFile(pathName, options);
+            }
+
+            parcelFileDescriptor.close();
+
+            if (degree != 0) {
+                Bitmap newBitmap = rotateImageView(bitmap, degree);
+                bitmap.recycle();
+                bitmap = null;
+                return newBitmap;
+            }
+
+            return bitmap;
+        } catch (OutOfMemoryError error) {
+            Log.e("eee", "内存泄露！");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
      * 获取Bitmap
      *
      * @param context

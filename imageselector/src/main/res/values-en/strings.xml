@@ -12,4 +12,5 @@
     <string name="selector_cancel">Cancel</string>
     <string name="selector_hint">Hint</string>
     <string name="selector_permissions_hint">This album needs to be granted access to storage and photos, please go to Settings > App > Permissions to configure permissions.</string>
+    <string name="selector_original_drawing">原图</string>
 </resources>

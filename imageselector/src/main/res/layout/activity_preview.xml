@@ -80,6 +80,7 @@
         android:layout_height="48dp"
         android:layout_alignParentBottom="true"
         android:background="#373c3d"
+        android:focusable="true"
         android:clickable="true">
 
         <TextView
@@ -87,7 +88,9 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:drawableLeft="@drawable/is_icon_image_un_select"
+            android:drawableStart="@drawable/is_icon_image_un_select"
             android:drawablePadding="10dp"
             android:gravity="center"
             android:paddingLeft="12dp"
@@ -96,13 +99,29 @@
             android:textColor="@android:color/white"
             android:textSize="18sp" />
 
-        <View
-            android:layout_width="1dp"
+        <LinearLayout
+            android:id="@+id/btn_original_drawing"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginBottom="15dp"
-            android:layout_marginTop="15dp"
-            android:layout_toLeftOf="@+id/tv_select"
-            android:background="@android:color/black" />
+            android:minWidth="70dp"
+            android:layout_centerInParent="true"
+            android:orientation="horizontal"
+            android:gravity="center">
+            <ImageView
+                android:id="@+id/iv_original_drawing"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/is_selector_original_drawing"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                android:gravity="center"
+                android:text="@string/selector_original_drawing"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+        </LinearLayout>
 
     </RelativeLayout>
 

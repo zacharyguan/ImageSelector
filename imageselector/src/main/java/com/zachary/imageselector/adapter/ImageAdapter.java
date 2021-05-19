@@ -14,7 +14,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.zachary.imageselector.R;
 import com.zachary.imageselector.entry.Image;
-import com.zachary.imageselector.utils.ToastUtils;
+import com.zachary.imageselector.utils.UiUtils;
 import com.zachary.imageselector.utils.VersionUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -145,7 +145,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
             selectImage(image);
             setItemSelect(holder, true, holder.getLayoutPosition());
         } else {
-            ToastUtils.showWxToast(holder.itemView.getContext(), String.format(Locale.CHINA, "你最多只能选择%d张图片", mMaxCount));
+            UiUtils.showWxToast(holder.itemView.getContext(), String.format(Locale.CHINA, "你最多只能选择%d张图片", mMaxCount));
         }
     }
 
@@ -225,7 +225,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
             }
             holder.ivMasking.setAlpha(0.5f);
         } else {
-            holder.tvSelect.setBackgroundResource(R.drawable.is_drawable_image_un_select);
+            holder.tvSelect.setBackgroundResource(R.drawable.is_drawable_unselected);
             holder.tvSelect.setText("");
             holder.ivMasking.setAlpha(0.2f);
         }

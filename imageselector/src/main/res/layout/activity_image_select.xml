@@ -166,14 +166,28 @@
 
         </FrameLayout>
 
-        <View
-            android:layout_width="1dp"
+        <LinearLayout
+            android:id="@+id/btn_original_drawing"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginBottom="15dp"
-            android:layout_marginTop="15dp"
-            android:layout_toLeftOf="@+id/btn_preview"
-            android:layout_toStartOf="@+id/btn_preview"
-            android:background="@android:color/black" />
-
+            android:minWidth="70dp"
+            android:layout_centerInParent="true"
+            android:orientation="horizontal"
+            android:gravity="center">
+            <ImageView
+                android:id="@+id/iv_original_drawing"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/is_selector_original_drawing"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                android:gravity="center"
+                android:text="@string/selector_original_drawing"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+        </LinearLayout>
     </RelativeLayout>
 </RelativeLayout>

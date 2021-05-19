@@ -12,4 +12,5 @@
     <string name="selector_cancel">取消</string>
     <string name="selector_hint">提示</string>
     <string name="selector_permissions_hint">该相册需要赋予访问存储和拍照的权限，请到“设置”>“应用”>“权限”中配置权限。</string>
+    <string name="selector_original_drawing">原图</string>
 </resources>

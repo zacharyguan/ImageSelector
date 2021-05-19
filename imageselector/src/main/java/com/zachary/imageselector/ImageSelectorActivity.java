@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
+import android.text.format.DateFormat;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
@@ -38,8 +40,8 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.zachary.imageselector.adapter.FolderAdapter;
 import com.zachary.imageselector.adapter.ImageAdapter;
 import com.zachary.imageselector.entry.Folder;
@@ -49,13 +51,14 @@ import com.zachary.imageselector.model.ImageModel;
 import com.zachary.imageselector.utils.DateUtils;
 import com.zachary.imageselector.utils.ImageSelector;
 import com.zachary.imageselector.utils.ImageUtil;
+import com.zachary.imageselector.utils.UiUtils;
 import com.zachary.imageselector.utils.UriUtils;
 import com.zachary.imageselector.utils.VersionUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -71,6 +74,8 @@ public class ImageSelectorActivity extends AppCompatActivity {
     private RecyclerView rvImage;
     private RecyclerView rvFolder;
     private View masking;
+    private LinearLayout btnOriginalDrawing;
+    private ImageView ivOriginalDrawing;
 
     private ImageAdapter mAdapter;
     private GridLayoutManager mLayoutManager;
@@ -97,11 +102,19 @@ public class ImageSelectorActivity extends AppCompatActivity {
     private boolean useCamera = true;
     private boolean onlyTakePhoto = false;
 
-    private Handler mHideHandler = new Handler();
+    private boolean isOriginalDrawing = false;
+
+    private Handler mMainHandler = new Handler();
     private Runnable mHide = new Runnable() {
         @Override
         public void run() {
             hideTime();
+        }
+    };
+    private Runnable mShowLoadingTask = new Runnable() {
+        @Override
+        public void run() {
+            UiUtils.showLoading(ImageSelectorActivity.this);
         }
     };
 
@@ -196,6 +209,8 @@ public class ImageSelectorActivity extends AppCompatActivity {
         ivFolderIndicator = findViewById(R.id.iv_folder_indicator);
         tvTime = findViewById(R.id.tv_time);
         masking = findViewById(R.id.masking);
+        btnOriginalDrawing = findViewById(R.id.btn_original_drawing);
+        ivOriginalDrawing = findViewById(R.id.iv_original_drawing);
     }
 
     private void initListener() {
@@ -253,6 +268,13 @@ public class ImageSelectorActivity extends AppCompatActivity {
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 changeTime();
+            }
+        });
+        btnOriginalDrawing.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isOriginalDrawing = !isOriginalDrawing;
+                ivOriginalDrawing.setSelected(isOriginalDrawing);
             }
         });
     }
@@ -470,8 +492,8 @@ public class ImageSelectorActivity extends AppCompatActivity {
             String time = DateUtils.getImageTime(this, image.getTime());
             tvTime.setText(time);
             showTime();
-            mHideHandler.removeCallbacks(mHide);
-            mHideHandler.postDelayed(mHide, 350);
+            mMainHandler.removeCallbacks(mHide);
+            mMainHandler.postDelayed(mHide, 350);
         }
     }
 
@@ -479,17 +501,57 @@ public class ImageSelectorActivity extends AppCompatActivity {
         return mLayoutManager.findFirstVisibleItemPosition();
     }
 
+    private void showLoading() {
+        mMainHandler.postDelayed(mShowLoadingTask, 300);
+    }
+
+    private void hideLoading() {
+        mMainHandler.removeCallbacksAndMessages(mShowLoadingTask);
+        UiUtils.hideLoading();
+    }
+
+    private String getCompressedImagePath(String originalPath) {
+        String name = DateFormat.format("yyyyMMdd_hhmmss", Calendar.getInstance(Locale.getDefault())).toString();
+        String path = ImageUtil.getImageCacheDir(this);
+        Bitmap bitmap = ImageUtil.decodeSampledBitmapByWidthFromFile(this, originalPath, 1080);
+        if (bitmap != null) {
+            return ImageUtil.saveImage(bitmap, path, name);
+        }
+        return originalPath;
+    }
+
     private void confirm() {
         if (mAdapter == null) {
             return;
         }
         //因为图片的实体类是Image，而我们返回的是String数组，所以要进行转换。
-        ArrayList<Image> selectImages = mAdapter.getSelectImages();
-        ArrayList<String> images = new ArrayList<>();
-        for (Image image : selectImages) {
-            images.add(image.getPath());
+        final ArrayList<Image> selectImages = mAdapter.getSelectImages();
+
+        final ArrayList<String> images = new ArrayList<>();
+        if (isOriginalDrawing) {
+            for (Image image : selectImages) {
+                images.add(image.getPath());
+            }
+            saveImageAndFinish(images, false);
+        } else {//如果未选择使用原图则压缩
+            showLoading();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for (Image image : selectImages) {
+                        images.add(getCompressedImagePath(image.getPath()));
+                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            hideLoading();
+                            mMainHandler.removeCallbacksAndMessages(mHide);
+                            saveImageAndFinish(images, false);
+                        }
+                    });
+                }
+            }).start();
         }
-        saveImageAndFinish(images, false);
     }
 
     private void saveImageAndFinish(final ArrayList<String> images, final boolean isCameraImage) {
@@ -509,7 +571,7 @@ public class ImageSelectorActivity extends AppCompatActivity {
     private void toPreviewActivity(ArrayList<Image> images, int position) {
         if (images != null && !images.isEmpty()) {
             PreviewActivity.openActivity(this, images,
-                    mAdapter.getSelectImages(), isSingle, mMaxCount, position);
+                    mAdapter.getSelectImages(), isSingle, mMaxCount, position, isOriginalDrawing);
         }
     }
 
@@ -537,14 +599,19 @@ public class ImageSelectorActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == ImageSelector.RESULT_CODE) {
-            if (data != null && data.getBooleanExtra(ImageSelector.IS_CONFIRM, false)) {
-                //如果用户在预览页点击了确定，就直接把用户选中的图片返回给用户。
-                confirm();
-            } else {
-                //否则，就刷新当前页面。
-                mAdapter.notifyDataSetChanged();
-                setSelectImageCount(mAdapter.getSelectImages().size());
+            if (data != null) {
+                //同步预览页的是否使用原图
+                isOriginalDrawing = data.getBooleanExtra(ImageSelector.IS_ORIGINAL_DRAWING, isOriginalDrawing);
+                ivOriginalDrawing.setSelected(isOriginalDrawing);
+                if (data.getBooleanExtra(ImageSelector.IS_CONFIRM, false)) {
+                    //如果用户在预览页点击了确定，就直接把用户选中的图片返回给用户。
+                    confirm();
+                    return;
+                }
             }
+            //否则，就刷新当前页面。
+            mAdapter.notifyDataSetChanged();
+            setSelectImageCount(mAdapter.getSelectImages().size());
         } else if (requestCode == CAMERA_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 ArrayList<String> images = new ArrayList<>();
