@@ -520,42 +520,45 @@ public class ImageSelectorActivity extends AppCompatActivity {
         return originalPath;
     }
 
+    private Thread mCompressSaveThread = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            final ArrayList<String> images = new ArrayList<>();
+            for (Image image : mAdapter.getSelectImages()) {
+                images.add(getCompressedImagePath(image.getPath()));
+            }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mMainHandler.removeCallbacksAndMessages(mHide);
+                    saveImageAndFinish(images, false);
+                    mCompressSaveThread = null;
+                }
+            });
+        }
+    });
     private void confirm() {
         if (mAdapter == null) {
             return;
         }
         //因为图片的实体类是Image，而我们返回的是String数组，所以要进行转换。
-        final ArrayList<Image> selectImages = mAdapter.getSelectImages();
-
-        final ArrayList<String> images = new ArrayList<>();
         if (isOriginalDrawing) {
+            final ArrayList<Image> selectImages = mAdapter.getSelectImages();
+            final ArrayList<String> images = new ArrayList<>();
             for (Image image : selectImages) {
                 images.add(image.getPath());
             }
             saveImageAndFinish(images, false);
         } else {//如果未选择使用原图则压缩
+            if (mCompressSaveThread == null || mCompressSaveThread.isAlive()) {
+                return;
+            }
             showLoading();
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    for (Image image : selectImages) {
-                        images.add(getCompressedImagePath(image.getPath()));
-                    }
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            hideLoading();
-                            mMainHandler.removeCallbacksAndMessages(mHide);
-                            saveImageAndFinish(images, false);
-                        }
-                    });
-                }
-            }).start();
+            mCompressSaveThread.start();
         }
     }
 
     private void saveImageAndFinish(final ArrayList<String> images, final boolean isCameraImage) {
-
         //点击确定，把选中的图片通过Intent传给上一个Activity。
         setResult(images, isCameraImage);
         finish();
@@ -871,5 +874,11 @@ public class ImageSelectorActivity extends AppCompatActivity {
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    protected void onDestroy() {
+        hideLoading();
+        super.onDestroy();
     }
 }

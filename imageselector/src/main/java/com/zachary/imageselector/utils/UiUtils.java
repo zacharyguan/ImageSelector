@@ -62,9 +62,7 @@ public class UiUtils {
 
     public static void hideLoading() {
         if (dialog != null) {
-            if (dialog.isShowing()) {
-                dialog.cancel();
-            }
+            dialog.dismiss();
             dialog = null;
         }
     }
