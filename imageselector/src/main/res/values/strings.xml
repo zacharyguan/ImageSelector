@@ -3,7 +3,7 @@
     <string name="selector_send">确定</string>
     <string name="selector_preview">预览</string>
     <string name="selector_select">选择</string>
-    <string name="selector_image_num">%d张</string>
+    <string name="selector_image_num">%d </string>
     <string name="selector_all_image">全部图片</string>
     <string name="selector_this_today">今天</string>
     <string name="selector_this_week">本周</string>
@@ -13,4 +13,5 @@
     <string name="selector_hint">提示</string>
     <string name="selector_permissions_hint">该相册需要赋予访问存储和拍照的权限，请到“设置”>“应用”>“权限”中配置权限。</string>
     <string name="selector_original_drawing">原图</string>
+    <string name="selector_all_video">全部视频</string>
 </resources>

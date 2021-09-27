@@ -9,11 +9,11 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.zachary.imageselector.R;
 import com.zachary.imageselector.entry.Image;
+import com.zachary.imageselector.entry.Video;
 import com.zachary.imageselector.utils.UiUtils;
 import com.zachary.imageselector.utils.VersionUtils;
 import java.util.ArrayList;
@@ -36,6 +36,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
     private static final int TYPE_CAMERA = 1;
     private static final int TYPE_IMAGE = 2;
+    private static final int TYPE_VIDEO = 3;
 
     private boolean useCamera;
 
@@ -59,6 +60,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_IMAGE) {
             View view = mInflater.inflate(R.layout.adapter_images_item, parent, false);
+            return new ViewHolder(view);
+        } else if (viewType == TYPE_VIDEO) {
+            View view = mInflater.inflate(R.layout.adapter_videos_item, parent, false);
             return new ViewHolder(view);
         } else {
             View view = mInflater.inflate(R.layout.adapter_camera, parent, false);
@@ -108,6 +112,36 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                     }
                 }
             });
+        } else if (getItemViewType(position) == TYPE_VIDEO) {
+            final Video video = (Video)getImage(position);
+            Glide.with(mContext).load(isAndroidQ ? video.getUri() : video.getPath())
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .into(holder.ivImage);
+            holder.tvDuration.setText(video.getDuration());
+
+            setItemSelect(holder, mSelectImages.contains(video), position);
+
+            //点击选中/取消选中图片
+            holder.btnSelect.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    checkedImage(holder, video);
+                }
+            });
+
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (isViewImage) {
+                        if (mItemClickListener != null) {
+                            int p = holder.getAdapterPosition();
+                            mItemClickListener.OnItemClick(video, useCamera ? p - 1 : p);
+                        }
+                    } else {
+                        checkedImage(holder, video);
+                    }
+                }
+            });
         }
     }
 
@@ -122,7 +156,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
     @Override
     public int getItemViewType(int position) {
-        if (useCamera && position == 0) {
+        if (mImages.get(position) instanceof Video) {
+            return TYPE_VIDEO;
+        } else if (useCamera && position == 0) {
             return TYPE_CAMERA;
         } else {
             return TYPE_IMAGE;
@@ -291,6 +327,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         ImageView ivMasking;
         ImageView ivGif;
         ImageView ivCamera;
+        TextView tvDuration;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -301,6 +338,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
             ivGif = itemView.findViewById(R.id.iv_gif);
 
             ivCamera = itemView.findViewById(R.id.iv_camera);
+
+            tvDuration = itemView.findViewById(R.id.tv_duration);
         }
     }
 

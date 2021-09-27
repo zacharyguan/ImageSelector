@@ -24,15 +24,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import com.zachary.imageselector.adapter.ImagePagerAdapter;
 import com.zachary.imageselector.entry.Image;
+import com.zachary.imageselector.entry.Video;
 import com.zachary.imageselector.utils.ImageSelector;
 import com.zachary.imageselector.utils.VersionUtils;
 import com.zachary.imageselector.view.MyViewPager;
-
 import java.util.ArrayList;
-
 import static android.animation.ObjectAnimator.ofFloat;
 
 public class PreviewActivity extends AppCompatActivity {
@@ -59,6 +57,7 @@ public class PreviewActivity extends AppCompatActivity {
     private boolean isConfirm = false;
     private boolean isSingle;
     boolean isOriginalDrawing;
+    boolean displayOriginalDrawing;
     private int mMaxCount;
 
     private BitmapDrawable mSelectDrawable;
@@ -74,6 +73,19 @@ public class PreviewActivity extends AppCompatActivity {
         intent.putExtra(ImageSelector.IS_SINGLE, isSingle);
         intent.putExtra(ImageSelector.POSITION, position);
         intent.putExtra(ImageSelector.IS_ORIGINAL_DRAWING, isOriginalDrawing);
+        activity.startActivityForResult(intent, ImageSelector.RESULT_CODE);
+    }
+
+    public static void openActivity(Activity activity, ArrayList<Image> images,
+                                    ArrayList<Image> selectImages, boolean isSingle,
+                                    int maxSelectCount, int position) {
+        tempImages = images;
+        tempSelectImages = selectImages;
+        Intent intent = new Intent(activity, PreviewActivity.class);
+        intent.putExtra(ImageSelector.MAX_SELECT_COUNT, maxSelectCount);
+        intent.putExtra(ImageSelector.IS_SINGLE, isSingle);
+        intent.putExtra(ImageSelector.POSITION, position);
+        intent.putExtra(ImageSelector.DISP_ORIGINAL_DRAWING, false);
         activity.startActivityForResult(intent, ImageSelector.RESULT_CODE);
     }
 
@@ -100,6 +112,7 @@ public class PreviewActivity extends AppCompatActivity {
         mMaxCount = intent.getIntExtra(ImageSelector.MAX_SELECT_COUNT, 0);
         isSingle = intent.getBooleanExtra(ImageSelector.IS_SINGLE, false);
         isOriginalDrawing = intent.getBooleanExtra(ImageSelector.IS_ORIGINAL_DRAWING, false);
+        displayOriginalDrawing = intent.getBooleanExtra(ImageSelector.DISP_ORIGINAL_DRAWING, true);
 
         Resources resources = getResources();
         Bitmap selectBitmap = BitmapFactory.decodeResource(resources, R.drawable.is_icon_image_select);
@@ -118,7 +131,13 @@ public class PreviewActivity extends AppCompatActivity {
         tvIndicator.setText(1 + "/" + mImages.size());
         changeSelect(mImages.get(0));
         vpImage.setCurrentItem(intent.getIntExtra(ImageSelector.POSITION, 0));
-        ivOriginalDrawing.setSelected(isOriginalDrawing);
+        if (displayOriginalDrawing) {
+            btnOriginalDrawing.setVisibility(View.VISIBLE);
+            ivOriginalDrawing.setSelected(isOriginalDrawing);
+        } else {
+            btnOriginalDrawing.setVisibility(View.GONE);
+        }
+
     }
 
     private void initView() {
@@ -180,6 +199,11 @@ public class PreviewActivity extends AppCompatActivity {
                 } else {
                     showBar();
                 }
+            }
+
+            @Override
+            public void onPlayClick(int position, Video video) {
+                startActivity(new Intent(Intent.ACTION_VIEW, video.getUri()));
             }
         });
         vpImage.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {

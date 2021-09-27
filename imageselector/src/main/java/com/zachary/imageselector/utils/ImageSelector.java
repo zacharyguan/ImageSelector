@@ -6,8 +6,10 @@ import android.support.v4.app.Fragment;
 
 import com.zachary.imageselector.ClipImageActivity;
 import com.zachary.imageselector.ImageSelectorActivity;
+import com.zachary.imageselector.VideoSelectorActivity;
 import com.zachary.imageselector.entry.RequestConfig;
 import com.zachary.imageselector.model.ImageModel;
+import com.zachary.imageselector.model.VideoModel;
 
 import java.util.ArrayList;
 
@@ -41,18 +43,21 @@ public class ImageSelector {
 
     //是否使用原图
     public static final String IS_ORIGINAL_DRAWING = "is_original_drawing";
+    //是否显示原图选项
+    public static final String DISP_ORIGINAL_DRAWING = "display_original_drawing";
 
     public static final String IS_CONFIRM = "is_confirm";
 
     public static final int RESULT_CODE = 0x00000012;
 
     /**
-     * 预加载图片
+     * 预加载图片和视频
      *
      * @param context
      */
     public static void preload(Context context) {
         ImageModel.preloadAndRegisterContentObserver(context);
+        VideoModel.preloadAndRegisterContentObserver(context);
     }
 
     /**
@@ -60,10 +65,15 @@ public class ImageSelector {
      */
     public static void clearCache(Context context) {
         ImageModel.clearCache(context);
+        VideoModel.clearCache(context);
     }
 
     public static ImageSelectorBuilder builder() {
         return new ImageSelectorBuilder();
+    }
+
+    public static VideoSelectorBuilder videoBuilder() {
+        return new VideoSelectorBuilder();
     }
 
     public static class ImageSelectorBuilder {
@@ -228,4 +238,103 @@ public class ImageSelector {
         }
     }
 
+    public static class VideoSelectorBuilder {
+
+        private RequestConfig config;
+
+        private VideoSelectorBuilder() {
+            config = new RequestConfig();
+        }
+
+        /**
+         * 是否单选
+         *
+         * @param isSingle
+         * @return
+         */
+        public VideoSelectorBuilder setSingle(boolean isSingle) {
+            config.isSingle = isSingle;
+            return this;
+        }
+
+        /**
+         * 是否可以点击放大图片查看，默认为true
+         *
+         * @param isViewImage
+         * @return
+         * @deprecated 请使用canPreview(boolean canPreview);
+         */
+        @Deprecated
+        public VideoSelectorBuilder setViewImage(boolean isViewImage) {
+            config.canPreview = isViewImage;
+            return this;
+        }
+
+        /**
+         * 是否可以点击预览，默认为true
+         *
+         * @param canPreview
+         * @return
+         */
+        public VideoSelectorBuilder canPreview(boolean canPreview) {
+            config.canPreview = canPreview;
+            return this;
+        }
+
+        /**
+         * 图片的最大选择数量，小于等于0时，不限数量，isSingle为false时才有用。
+         *
+         * @param maxSelectCount
+         * @return
+         */
+        public VideoSelectorBuilder setMaxSelectCount(int maxSelectCount) {
+            config.maxSelectCount = maxSelectCount;
+            return this;
+        }
+
+        /**
+         * 接收从外面传进来的已选择的图片列表。当用户原来已经有选择过图片，现在重新打开
+         * 选择器，允许用户把先前选过的图片传进来，并把这些图片默认为选中状态。
+         *
+         * @param selected
+         * @return
+         */
+        public VideoSelectorBuilder setSelected(ArrayList<String> selected) {
+            config.selected = selected;
+            return this;
+        }
+
+        /**
+         * 打开相册
+         *
+         * @param activity
+         * @param requestCode
+         */
+        public void start(Activity activity, int requestCode) {
+            config.requestCode = requestCode;
+            VideoSelectorActivity.openActivity(activity, requestCode, config);
+        }
+
+        /**
+         * 打开相册
+         *
+         * @param fragment
+         * @param requestCode
+         */
+        public void start(Fragment fragment, int requestCode) {
+            config.requestCode = requestCode;
+            VideoSelectorActivity.openActivity(fragment, requestCode, config);
+        }
+
+        /**
+         * 打开相册
+         *
+         * @param fragment
+         * @param requestCode
+         */
+        public void start(android.app.Fragment fragment, int requestCode) {
+            config.requestCode = requestCode;
+            VideoSelectorActivity.openActivity(fragment, requestCode, config);
+        }
+    }
 }

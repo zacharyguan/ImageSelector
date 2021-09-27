@@ -9,13 +9,14 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
-
 import com.zachary.imageselector.R;
 import com.zachary.imageselector.entry.Folder;
 import com.zachary.imageselector.entry.Image;
-import com.zachary.imageselector.utils.ImageUtil;
+import com.zachary.imageselector.entry.Video;
 import com.zachary.imageselector.utils.StringUtils;
 import com.zachary.imageselector.utils.UriUtils;
+import com.zachary.imageselector.utils.VersionUtils;
+import com.zachary.imageselector.utils.VideoUtils;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -23,27 +24,29 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
-public class ImageModel {
+public class VideoModel {
 
     /**
-     * 缓存图片
+     * 缓存视频
      */
-    private static ArrayList<Folder> cacheImageList = null;
+    private static ArrayList<Folder> cacheVideoList = null;
     private static boolean isNeedCache = false;
-    private static PhotoContentObserver observer;
+    private static VideoContentObserver observer;
+    private static boolean isAndroidQ = VersionUtils.isAndroidQ();
 
     /**
-     * 预加载图片
+     * 预加载视频
      *
      * @param context
      */
     public static void preloadAndRegisterContentObserver(final Context context) {
         isNeedCache = true;
         if (observer == null) {
-            observer = new PhotoContentObserver(context.getApplicationContext());
+            observer = new VideoContentObserver(context.getApplicationContext());
             context.getApplicationContext().getContentResolver().registerContentObserver(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, observer);
+                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI, true, observer);
         }
         preload(context);
     }
@@ -52,8 +55,8 @@ public class ImageModel {
         int hasWriteExternalPermission = ContextCompat.checkSelfPermission(context,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE);
         if (hasWriteExternalPermission == PackageManager.PERMISSION_GRANTED) {
-            //有权限，加载图片。
-            loadImageForSDCard(context, true, null);
+            //有权限，加载视频。
+            loadVideoForSDCard(context, true, null);
         }
     }
 
@@ -69,10 +72,10 @@ public class ImageModel {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                synchronized (ImageModel.class) {
-                    if (cacheImageList != null) {
-                        cacheImageList.clear();
-                        cacheImageList = null;
+                synchronized (VideoModel.class) {
+                    if (cacheVideoList != null) {
+                        cacheVideoList.clear();
+                        cacheVideoList = null;
                     }
                 }
             }
@@ -80,62 +83,59 @@ public class ImageModel {
     }
 
     /**
-     * 从SDCard加载图片
+     * 从SDCard加载视频
      *
      * @param context
      * @param callback
      */
-    public static void loadImageForSDCard(final Context context, final DataCallback callback) {
-        loadImageForSDCard(context, false, callback);
+    public static void loadVideoForSDCard(final Context context, final DataCallback callback) {
+        loadVideoForSDCard(context, false, callback);
     }
 
     /**
-     * 从SDCard加载图片
+     * 从SDCard加载视频
      *
      * @param context
      * @param isPreload 是否是预加载
      * @param callback
      */
-    private static void loadImageForSDCard(final Context context, final boolean isPreload, final DataCallback callback) {
-        //由于扫描图片是耗时的操作，所以要在子线程处理。
+    private static void loadVideoForSDCard(final Context context, final boolean isPreload, final DataCallback callback) {
+        //由于扫描视频是耗时的操作，所以要在子线程处理。
         new Thread(new Runnable() {
             @Override
             public void run() {
-                synchronized (ImageModel.class) {
-                    String imageCacheDir = ImageUtil.getImageCacheDir(context);
+                synchronized (VideoModel.class) {
                     ArrayList<Folder> folders = null;
-                    if (cacheImageList == null || isPreload) {
-                        ArrayList<Image> imageList = loadImage(context);
-                        Collections.sort(imageList, new Comparator<Image>() {
+                    if (cacheVideoList == null || isPreload) {
+                        ArrayList<Image> videoList = loadVideo(context);
+                        Collections.sort(videoList, new Comparator<Image>() {
                             @Override
-                            public int compare(Image image, Image t1) {
-                                if (image.getTime() > t1.getTime()) {
+                            public int compare(Image video, Image t1) {
+                                if (video.getTime() > t1.getTime()) {
                                     return 1;
-                                } else if (image.getTime() < t1.getTime()) {
+                                } else if (video.getTime() < t1.getTime()) {
                                     return -1;
                                 } else {
                                     return 0;
                                 }
                             }
                         });
-                        ArrayList<Image> images = new ArrayList<>();
+                        ArrayList<Image> videos = new ArrayList<>();
 
-                        for (Image image : imageList) {
-                            // 过滤不存在或未下载完成的图片
-                            boolean exists = !"downloading".equals(getExtensionName(image.getPath())) && checkImgExists(image.getPath());
-                            //过滤剪切保存的图片；
-                            boolean isCutImage = ImageUtil.isCutImage(imageCacheDir, image.getPath());
-                            if (!isCutImage && exists) {
-                                images.add(image);
+                        for (Image video : videoList) {
+                            // 过滤不存在或未下载完成的视频
+                            boolean exists = !"downloading".equals(getExtensionName(video.getPath())) && checkImgExists(video.getPath());
+                            if (exists) {
+                                videos.add(video);
                             }
                         }
-                        Collections.reverse(images);
-                        folders = splitFolder(context, images);
+                        Collections.reverse(videos);
+                        folders = splitFolder(context, videos);
                         if (isNeedCache) {
-                            cacheImageList = folders;
+                            cacheVideoList = folders;
                         }
                     } else {
-                        folders = cacheImageList;
+                        folders = cacheVideoList;
                     }
 
                     if (callback != null) {
@@ -147,65 +147,81 @@ public class ImageModel {
     }
 
     /**
-     * 从SDCard加载图片
+     * 从SDCard加载视频
      *
      * @param context
      * @return
      */
-    private static synchronized ArrayList<Image> loadImage(Context context) {
+    private static synchronized ArrayList<Image> loadVideo(Context context) {
 
-        //扫描图片
-        Uri mImageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        //扫描视频
+        Uri mVideoUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
         ContentResolver mContentResolver = context.getContentResolver();
 
-        Cursor mCursor = mContentResolver.query(mImageUri, new String[]{
-                        MediaStore.Images.Media.DATA,
-                        MediaStore.Images.Media.DISPLAY_NAME,
-                        MediaStore.Images.Media.DATE_ADDED,
-                        MediaStore.Images.Media._ID,
-                        MediaStore.Images.Media.MIME_TYPE,
-                        MediaStore.Images.Media.SIZE},
+        Cursor mCursor = mContentResolver.query(mVideoUri, new String[]{
+                        MediaStore.Video.Media.DATA,
+                        MediaStore.Video.Media.DISPLAY_NAME,
+                        MediaStore.Video.Media.DATE_ADDED,
+                        MediaStore.Video.Media._ID,
+                        MediaStore.Video.Media.MIME_TYPE,
+                        MediaStore.Video.Media.SIZE,
+                },
                 MediaStore.MediaColumns.SIZE + ">0",
                 null,
-                MediaStore.Images.Media.DATE_ADDED + " DESC");
+                MediaStore.Video.Media.DATE_ADDED + " DESC");
 
-        ArrayList<Image> images = new ArrayList<>();
+        ArrayList<Image> videos = new ArrayList<>();
 
-        //读取扫描到的图片
+        //读取扫描到的视频
         if (mCursor != null) {
             while (mCursor.moveToNext()) {
-                // 获取图片的路径
-                long id = mCursor.getLong(mCursor.getColumnIndex(MediaStore.Images.Media._ID));
+                // 获取视频的路径
+                long id = mCursor.getLong(mCursor.getColumnIndex(MediaStore.Video.Media._ID));
                 String path = mCursor.getString(
-                        mCursor.getColumnIndex(MediaStore.Images.Media.DATA));
-                //获取图片名称
+                        mCursor.getColumnIndex(MediaStore.Video.Media.DATA));
+                //获取视频名称
                 String name = mCursor.getString(
-                        mCursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
-                //获取图片时间
+                        mCursor.getColumnIndex(MediaStore.Video.Media.DISPLAY_NAME));
+                //获取视频时间
                 long time = mCursor.getLong(
-                        mCursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED));
+                        mCursor.getColumnIndex(MediaStore.Video.Media.DATE_ADDED));
 
                 if (String.valueOf(time).length() < 13) {
                     time *= 1000;
                 }
 
-                //获取图片类型
+                //获取视频类型
                 String mimeType = mCursor.getString(
-                        mCursor.getColumnIndex(MediaStore.Images.Media.MIME_TYPE));
+                        mCursor.getColumnIndex(MediaStore.Video.Media.MIME_TYPE));
 
-                //获取图片uri
-                Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI.buildUpon()
+                //获取视频uri
+                Uri uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI.buildUpon()
                         .appendPath(String.valueOf(id)).build();
 
-                images.add(new Image(path, time, name, mimeType, uri));
+                String duration = isAndroidQ ? VideoUtils.getRingDuring(context, uri) : VideoUtils.getRingDuring(path);
+
+                videos.add(new Video(path, time, name, mimeType, uri, formatDuration(duration)));
             }
             mCursor.close();
         }
-        return images;
+        return videos;
+    }
+
+    private static String formatDuration(String duration) {
+        if (duration != null && !duration.isEmpty()) {
+            try {
+                long totalSecs = Long.valueOf(duration)/1000;
+                long mins = totalSecs/60;
+                long secs = totalSecs%60;
+                return String.format(Locale.CHINA, "%d:%02d", mins, secs);
+            } catch (Exception e) {
+            }
+        }
+        return null;
     }
 
     /**
-     * 检查图片是否存在。ContentResolver查询处理的数据有可能文件路径并不存在。
+     * 检查视频是否存在。ContentResolver查询处理的数据有可能文件路径并不存在。
      *
      * @param filePath
      * @return
@@ -215,28 +231,28 @@ public class ImageModel {
     }
 
     private static String getPathForAndroidQ(Context context, long id) {
-        return UriUtils.getPathForUri(context, MediaStore.Images.Media.EXTERNAL_CONTENT_URI.buildUpon()
+        return UriUtils.getPathForUri(context, MediaStore.Video.Media.EXTERNAL_CONTENT_URI.buildUpon()
                 .appendPath(String.valueOf(id)).build());
     }
 
     /**
-     * 把图片按文件夹拆分，第一个文件夹保存所有的图片
+     * 把视频按文件夹拆分，第一个文件夹保存所有的视频
      *
-     * @param images
+     * @param videos
      * @return
      */
-    private static ArrayList<Folder> splitFolder(Context context, ArrayList<Image> images) {
+    private static ArrayList<Folder> splitFolder(Context context, ArrayList<Image> videos) {
         ArrayList<Folder> folders = new ArrayList<>();
-        folders.add(new Folder(context.getString(R.string.selector_all_image), images));
+        folders.add(new Folder(context.getString(R.string.selector_all_video), videos));
 
-        if (images != null && !images.isEmpty()) {
-            int size = images.size();
+        if (videos != null && !videos.isEmpty()) {
+            int size = videos.size();
             for (int i = 0; i < size; i++) {
-                String path = images.get(i).getPath();
+                String path = videos.get(i).getPath();
                 String name = getFolderName(path);
                 if (StringUtils.isNotEmptyString(name)) {
                     Folder folder = getFolder(name, folders);
-                    folder.addImage(images.get(i));
+                    folder.addImage(videos.get(i));
                 }
             }
         }
@@ -257,7 +273,7 @@ public class ImageModel {
     }
 
     /**
-     * 根据图片路径，获取图片文件夹名称
+     * 根据视频路径，获取视频文件夹名称
      *
      * @param path
      * @return
@@ -291,11 +307,11 @@ public class ImageModel {
         void onSuccess(ArrayList<Folder> folders);
     }
 
-    private static class PhotoContentObserver extends ContentObserver {
+    private static class VideoContentObserver extends ContentObserver {
 
         private WeakReference<Context> contextRef;
 
-        PhotoContentObserver(Context appContext) {
+        VideoContentObserver(Context appContext) {
             super(null);
             contextRef = new WeakReference<>(appContext);
         }
