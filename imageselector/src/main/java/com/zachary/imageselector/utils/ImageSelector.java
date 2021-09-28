@@ -181,6 +181,27 @@ public class ImageSelector {
         }
 
         /**
+         * 是否显示选择原图开关，默认为true
+         * @param canChangeOriginalDrawing
+         * @return
+         */
+
+        public ImageSelectorBuilder canChangeOriginalDrawing(boolean canChangeOriginalDrawing) {
+            config.canChangeOriginalDrawing = canChangeOriginalDrawing;
+            return this;
+        }
+
+        /**
+         * 是否使用原图，默认为false
+         * @param isOriginalDrawing
+         * @return
+         */
+        public ImageSelectorBuilder setOriginalDrawing(boolean isOriginalDrawing) {
+            config.isOriginalDrawing = isOriginalDrawing;
+            return this;
+        }
+
+        /**
          * 打开相册
          *
          * @param activity

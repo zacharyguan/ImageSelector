@@ -56,8 +56,8 @@ public class PreviewActivity extends AppCompatActivity {
     private boolean isShowBar = true;
     private boolean isConfirm = false;
     private boolean isSingle;
-    boolean isOriginalDrawing;
-    boolean displayOriginalDrawing;
+    private boolean isOriginalDrawing;
+    private boolean displayOriginalDrawing;
     private int mMaxCount;
 
     private BitmapDrawable mSelectDrawable;
@@ -65,7 +65,7 @@ public class PreviewActivity extends AppCompatActivity {
 
     public static void openActivity(Activity activity, ArrayList<Image> images,
                                     ArrayList<Image> selectImages, boolean isSingle,
-                                    int maxSelectCount, int position, boolean isOriginalDrawing) {
+                                    int maxSelectCount, int position, boolean isOriginalDrawing, boolean displayOriginalDrawing) {
         tempImages = images;
         tempSelectImages = selectImages;
         Intent intent = new Intent(activity, PreviewActivity.class);
@@ -73,19 +73,7 @@ public class PreviewActivity extends AppCompatActivity {
         intent.putExtra(ImageSelector.IS_SINGLE, isSingle);
         intent.putExtra(ImageSelector.POSITION, position);
         intent.putExtra(ImageSelector.IS_ORIGINAL_DRAWING, isOriginalDrawing);
-        activity.startActivityForResult(intent, ImageSelector.RESULT_CODE);
-    }
-
-    public static void openActivity(Activity activity, ArrayList<Image> images,
-                                    ArrayList<Image> selectImages, boolean isSingle,
-                                    int maxSelectCount, int position) {
-        tempImages = images;
-        tempSelectImages = selectImages;
-        Intent intent = new Intent(activity, PreviewActivity.class);
-        intent.putExtra(ImageSelector.MAX_SELECT_COUNT, maxSelectCount);
-        intent.putExtra(ImageSelector.IS_SINGLE, isSingle);
-        intent.putExtra(ImageSelector.POSITION, position);
-        intent.putExtra(ImageSelector.DISP_ORIGINAL_DRAWING, false);
+        intent.putExtra(ImageSelector.DISP_ORIGINAL_DRAWING, displayOriginalDrawing);
         activity.startActivityForResult(intent, ImageSelector.RESULT_CODE);
     }
 
@@ -137,7 +125,6 @@ public class PreviewActivity extends AppCompatActivity {
         } else {
             btnOriginalDrawing.setVisibility(View.GONE);
         }
-
     }
 
     private void initView() {

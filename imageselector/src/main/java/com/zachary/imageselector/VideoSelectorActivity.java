@@ -495,7 +495,7 @@ public class VideoSelectorActivity extends AppCompatActivity {
     private void toPreviewActivity(ArrayList<Image> images, int position) {
         if (images != null && !images.isEmpty()) {
             PreviewActivity.openActivity(this, images,
-                    mAdapter.getSelectImages(), isSingle, mMaxCount, position);
+                    mAdapter.getSelectImages(), isSingle, mMaxCount, position, false, false);
         }
     }
 

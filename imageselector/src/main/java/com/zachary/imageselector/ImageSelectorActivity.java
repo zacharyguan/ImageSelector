@@ -102,7 +102,8 @@ public class ImageSelectorActivity extends AppCompatActivity {
     private boolean useCamera = true;
     private boolean onlyTakePhoto = false;
 
-    private boolean isOriginalDrawing = false;
+    private boolean isOriginalDrawing;
+    private boolean displayOriginalDrawing;
 
     private Handler mMainHandler = new Handler();
     private Runnable mHide = new Runnable() {
@@ -171,6 +172,8 @@ public class ImageSelectorActivity extends AppCompatActivity {
         canPreview = config.canPreview;
         useCamera = config.useCamera;
         mSelectedImages = config.selected;
+        isOriginalDrawing = config.isOriginalDrawing;
+        displayOriginalDrawing = config.canChangeOriginalDrawing;
         onlyTakePhoto = config.onlyTakePhoto;
         if (onlyTakePhoto) {
             // 仅拍照
@@ -209,8 +212,10 @@ public class ImageSelectorActivity extends AppCompatActivity {
         ivFolderIndicator = findViewById(R.id.iv_folder_indicator);
         tvTime = findViewById(R.id.tv_time);
         masking = findViewById(R.id.masking);
-        btnOriginalDrawing = findViewById(R.id.btn_original_drawing);
         ivOriginalDrawing = findViewById(R.id.iv_original_drawing);
+        btnOriginalDrawing = findViewById(R.id.btn_original_drawing);
+        ivOriginalDrawing.setSelected(isOriginalDrawing);
+        btnOriginalDrawing.setVisibility(displayOriginalDrawing ? View.VISIBLE : View.GONE);
     }
 
     private void initListener() {
@@ -574,7 +579,7 @@ public class ImageSelectorActivity extends AppCompatActivity {
     private void toPreviewActivity(ArrayList<Image> images, int position) {
         if (images != null && !images.isEmpty()) {
             PreviewActivity.openActivity(this, images,
-                    mAdapter.getSelectImages(), isSingle, mMaxCount, position, isOriginalDrawing);
+                    mAdapter.getSelectImages(), isSingle, mMaxCount, position, isOriginalDrawing, displayOriginalDrawing);
         }
     }
 

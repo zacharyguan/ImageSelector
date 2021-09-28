@@ -21,48 +21,52 @@ public class RequestConfig implements Parcelable {
     public ArrayList<String> selected; //接收从外面传进来的已选择的图片列表。当用户原来已经有选择过图片，重新打开选择器，允许用户把先前选过的图片传进来，并把这些图片默认为选中状态。
     public float cropRatio = 1.0f; // 图片剪切的宽高比，宽固定为手机屏幕的宽。
     public boolean onlyVideo = false;//仅视频
+    public boolean canChangeOriginalDrawing = true;//是否显示原图开关
+    public boolean isOriginalDrawing = false;//是否使用原图
     public int requestCode;
 
+    public RequestConfig() { }
+
+    protected RequestConfig(Parcel in) {
+        isCrop = in.readByte() != 0;
+        useCamera = in.readByte() != 0;
+        onlyTakePhoto = in.readByte() != 0;
+        isSingle = in.readByte() != 0;
+        canPreview = in.readByte() != 0;
+        maxSelectCount = in.readInt();
+        selected = in.createStringArrayList();
+        cropRatio = in.readFloat();
+        onlyVideo = in.readByte() != 0;
+        canChangeOriginalDrawing = in.readByte() != 0;
+        isOriginalDrawing = in.readByte() != 0;
+        requestCode = in.readInt();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeByte((byte) (isCrop ? 1 : 0));
+        dest.writeByte((byte) (useCamera ? 1 : 0));
+        dest.writeByte((byte) (onlyTakePhoto ? 1 : 0));
+        dest.writeByte((byte) (isSingle ? 1 : 0));
+        dest.writeByte((byte) (canPreview ? 1 : 0));
+        dest.writeInt(maxSelectCount);
+        dest.writeStringList(selected);
+        dest.writeFloat(cropRatio);
+        dest.writeByte((byte) (onlyVideo ? 1 : 0));
+        dest.writeByte((byte) (canChangeOriginalDrawing ? 1 : 0));
+        dest.writeByte((byte) (isOriginalDrawing ? 1 : 0));
+        dest.writeInt(requestCode);
+    }
 
     @Override
     public int describeContents() {
         return 0;
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeByte(this.isCrop ? (byte) 1 : (byte) 0);
-        dest.writeByte(this.useCamera ? (byte) 1 : (byte) 0);
-        dest.writeByte(this.onlyTakePhoto ? (byte) 1 : (byte) 0);
-        dest.writeByte(this.isSingle ? (byte) 1 : (byte) 0);
-        dest.writeByte(this.canPreview ? (byte) 1 : (byte) 0);
-        dest.writeInt(this.maxSelectCount);
-        dest.writeStringList(this.selected);
-        dest.writeFloat(this.cropRatio);
-        dest.writeByte(this.onlyVideo ? (byte) 1 : (byte) 0);
-        dest.writeInt(this.requestCode);
-    }
-
-    public RequestConfig() {
-    }
-
-    protected RequestConfig(Parcel in) {
-        this.isCrop = in.readByte() != 0;
-        this.useCamera = in.readByte() != 0;
-        this.onlyTakePhoto = in.readByte() != 0;
-        this.isSingle = in.readByte() != 0;
-        this.canPreview = in.readByte() != 0;
-        this.maxSelectCount = in.readInt();
-        this.selected = in.createStringArrayList();
-        this.cropRatio = in.readFloat();
-        this.onlyVideo = in.readByte() != 0;
-        this.requestCode = in.readInt();
-    }
-
     public static final Creator<RequestConfig> CREATOR = new Creator<RequestConfig>() {
         @Override
-        public RequestConfig createFromParcel(Parcel source) {
-            return new RequestConfig(source);
+        public RequestConfig createFromParcel(Parcel in) {
+            return new RequestConfig(in);
         }
 
         @Override
