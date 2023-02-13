@@ -6,7 +6,9 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
 
@@ -16,8 +18,10 @@ import com.zachary.imageselector.entry.Image;
 import com.zachary.imageselector.utils.ImageUtil;
 import com.zachary.imageselector.utils.StringUtils;
 import com.zachary.imageselector.utils.UriUtils;
+import com.zachary.imageselector.utils.VersionUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +29,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class ImageModel {
+    private static boolean filterByResolutions = false;//"8192x4096","6720x3360","5376x2688","4096x2048"
 
     /**
      * 缓存图片
@@ -228,6 +233,9 @@ public class ImageModel {
     private static ArrayList<Folder> splitFolder(Context context, ArrayList<Image> images) {
         ArrayList<Folder> folders = new ArrayList<>();
         folders.add(new Folder(context.getString(R.string.selector_all_image), images));
+		if (filterByResolutions) {
+		    folders.addAll(filterByResolutions(context, images));
+		}
 
         if (images != null && !images.isEmpty()) {
             int size = images.size();
@@ -241,6 +249,51 @@ public class ImageModel {
             }
         }
         return folders;
+    }
+
+    private static ArrayList<Folder> filterByResolutions(Context context, ArrayList<Image> images) {
+        ArrayList<Folder> ret = new ArrayList<>();
+        if (images != null && !images.isEmpty()) {
+            final String[] resolutionStrings = {"8192x4096","6720x3360","5376x2688","4096x2048"};
+            int[][] resolutions = new int[resolutionStrings.length][2];
+            for (int i = 0; i < resolutionStrings.length; i++ ) {
+                String[] values = resolutionStrings[i].split("x");
+                resolutions[i][0] = Integer.parseInt(values[0]);
+                resolutions[i][1] = Integer.parseInt(values[1]);
+            }
+            Folder[] folders = new Folder[resolutionStrings.length];
+
+            for (Image image : images) {
+                try {
+                    final BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inJustDecodeBounds = true;
+                    if (VersionUtils.isAndroidQ()) {
+                        ParcelFileDescriptor parcelFileDescriptor = context.getContentResolver().openFileDescriptor(image.getUri(), "r");
+                        BitmapFactory.decodeFileDescriptor(parcelFileDescriptor.getFileDescriptor(), null, options);
+                    } else {
+                        BitmapFactory.decodeFile(image.getPath(), options);
+                    }
+
+                    for (int i = 0; i< resolutionStrings.length; i++) {
+                        if (options.outWidth == resolutions[i][0] && options.outHeight == resolutions[i][1]) {
+                            if (folders[i] == null) {
+                                folders[i] = new Folder(context.getString(R.string.selector_resolution,resolutionStrings[i]));
+                            }
+                            folders[i].addImage(image);
+                        }
+                    }
+
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+            for (int i = 0; i < resolutionStrings.length; i++) {
+                if (folders[i] != null) {
+                    ret.add(folders[i]);
+                }
+            }
+        }
+        return ret;
     }
 
     /**

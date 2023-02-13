@@ -5,6 +5,7 @@
     <string name="selector_select">选择</string>
     <string name="selector_image_num">%d </string>
     <string name="selector_all_image">全部图片</string>
+    <string name="selector_resolution">%s(分辨率)</string>
     <string name="selector_this_today">今天</string>
     <string name="selector_this_week">本周</string>
     <string name="selector_this_month">本月</string>

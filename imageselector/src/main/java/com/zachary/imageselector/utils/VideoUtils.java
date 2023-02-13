@@ -20,7 +20,6 @@ public class VideoUtils {
         } finally {
             mmr.release();
         }
-        Log.e("test","duration "+duration);
         return duration;
     }
 
@@ -38,7 +37,6 @@ public class VideoUtils {
         } finally {
             mmr.release();
         }
-        Log.e("test","duration "+duration);
         return duration;
     }
 }

@@ -14,4 +14,5 @@
     <string name="selector_permissions_hint">This album needs to be granted access to storage and photos, please go to Settings > App > Permissions to configure permissions.</string>
     <string name="selector_original_drawing">原图</string>
     <string name="selector_all_video">全部视频</string>
+    <string name="selector_resolution">%s(Resolution)</string>
 </resources>

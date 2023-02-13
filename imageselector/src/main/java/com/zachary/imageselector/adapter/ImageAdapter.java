@@ -156,12 +156,17 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
     @Override
     public int getItemViewType(int position) {
-        if (mImages.get(position) instanceof Video) {
-            return TYPE_VIDEO;
-        } else if (useCamera && position == 0) {
+        if (useCamera && position == 0) {
             return TYPE_CAMERA;
         } else {
-            return TYPE_IMAGE;
+            if (useCamera && position > 0) {
+                position--;
+            }
+            if (mImages.get(position) instanceof Video) {
+                return TYPE_VIDEO;
+            } else {
+                return TYPE_IMAGE;
+            }
         }
     }
 
